@@ -4,13 +4,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
-  OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { Board } from '../boards/board.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
-export class User {
+export class Board {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -18,14 +18,11 @@ export class User {
   name: string;
 
   @Column()
-  @Index({ unique: true })
-  email: string;
+  ownerId: string;
 
-  @Column()
-  password: string;
-
-  @OneToMany(() => Board, (board) => board.owner)
-  boards: Board[];
+  @ManyToOne(() => User, (user) => user.boards)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
 
   @CreateDateColumn()
   createdAt: Date;
