@@ -51,4 +51,30 @@ boardController.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// ボード削除
+boardController.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    if (!req.currentUser) {
+      res.status(401).json({ message: '認証が必要です' });
+      return;
+    }
+
+    const { id } = req.params;
+    const board = await boardRepository.findOne({
+      where: { id, ownerId: req.currentUser.id },
+    });
+
+    if (!board) {
+      res.status(404).json({ message: 'ボードが見つかりません' });
+      return;
+    }
+
+    await boardRepository.remove(board);
+    res.status(204).send();
+  } catch (error) {
+    console.error('ボード削除エラー:', error);
+    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+  }
+});
+
 export default boardController;

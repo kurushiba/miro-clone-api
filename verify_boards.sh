@@ -32,3 +32,32 @@ curl -s -X POST http://localhost:8888/boards \
 echo -e "\nListing boards..."
 curl -s -X GET http://localhost:8888/boards \
   -H "Authorization: Bearer $TOKEN"
+
+# Extract board ID (Assuming response is array and taking the first one's id)
+# Response: [{"id":"uuid",...}]
+echo -e "\n\nGetting board ID..."
+BOARDS=$(curl -s -X GET http://localhost:8888/boards -H "Authorization: Bearer $TOKEN")
+BOARD_ID=$(echo $BOARDS | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+
+if [ -z "$BOARD_ID" ]; then
+  echo "Failed to get board ID"
+  exit 1
+fi
+echo "Board ID: $BOARD_ID"
+
+# Delete Board
+echo -e "\nDeleting board..."
+DELETE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE http://localhost:8888/boards/$BOARD_ID \
+  -H "Authorization: Bearer $TOKEN")
+
+echo "Delete Status: $DELETE_STATUS"
+
+if [ "$DELETE_STATUS" != "204" ]; then
+  echo "Failed to delete board"
+  exit 1
+fi
+
+# List Boards again to verify
+echo -e "\nListing boards after deletion (should be empty or not contain the deleted board)..."
+curl -s -X GET http://localhost:8888/boards \
+  -H "Authorization: Bearer $TOKEN"
