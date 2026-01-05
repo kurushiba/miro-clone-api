@@ -72,6 +72,41 @@ boardObjectController.post('/:boardId', async (req: Request, res: Response) => {
   }
 });
 
+// オブジェクト更新
+boardObjectController.patch('/:id', async (req: Request, res: Response) => {
+  try {
+    if (!req.currentUser) {
+      res.status(401).json({ message: '認証が必要です' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { x, y, width, height, content, color } = req.body;
+
+    const object = await boardObjectRepository.findOne({ where: { id } });
+
+    if (!object) {
+      res.status(404).json({ message: 'オブジェクトが見つかりません' });
+      return;
+    }
+
+    // 更新するフィールドのみを適用
+    if (x !== undefined) object.x = x;
+    if (y !== undefined) object.y = y;
+    if (width !== undefined) object.width = width;
+    if (height !== undefined) object.height = height;
+    if (content !== undefined) object.content = content;
+    if (color !== undefined) object.color = color;
+
+    const updatedObject = await boardObjectRepository.save(object);
+
+    res.status(200).json(updatedObject);
+  } catch (error) {
+    console.error('オブジェクト更新エラー:', error);
+    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+  }
+});
+
 // オブジェクト削除
 // DELETEリクエストはオブジェクトIDを指定しますが、パスは /:id となります
 // ユーザー要望の "/:boardId" (DELETE) はコンテキスト的にオブジェクト削除と思われるため、
