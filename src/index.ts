@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import setCurrentUser from './middleware/set-current-user';
 import authController from './modules/auth/auth.controller';
 import boardController from './modules/boards/board.controller';
+import boardObjectController from './modules/board-objects/board-object.controller';
 import datasource from './datasource';
 
 require('dotenv').config();
@@ -24,6 +25,7 @@ app.use('/uploads', express.static('uploads'));
 // ルートの設定
 app.use('/auth', authController);
 app.use('/boards', boardController);
+app.use('/board-objects', boardObjectController); // apiプレフィックスを削除
 
 app.get('/', (req: Request, res: Response) => {
   res.send('hello world');
