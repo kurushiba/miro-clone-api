@@ -46,7 +46,7 @@ export class BoardObject {
   @Column('float', { nullable: true })
   height: number;
 
-  @Column('text')
+  @Column('text', { nullable: true })
   content: string;
 
   @Column({ nullable: true })
